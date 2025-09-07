@@ -20,10 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import com.kev.domain.model.League
+import com.kev.fdjapptest.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +60,7 @@ fun AutocompleteField(
                 textFieldValue = it
                 onQueryChange(it.text)
             },
-            label = { Text("Search a league") },
+            label = { Text(stringResource(R.string.autocomplete_hint)) },
             modifier = Modifier
                 .menuAnchor(
                     type = MenuAnchorType.PrimaryEditable,
@@ -78,7 +80,7 @@ fun AutocompleteField(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Clear,
-                            contentDescription = "Clear text"
+                            contentDescription = stringResource(R.string.autocomplete_clear_description)
                         )
                     }
                 }

@@ -4,6 +4,10 @@
     <string name="error_screen_title">Oops, an error occurred</string>
     <string name="league_placeholder_title">Pick a league to view teams.</string>
     <string name="league_placeholder_empty_title">No teams found for this league.</string>
-    <string name="league_placeholder_subtitle">Start typing to search a league (e.g., “English Premier League”, “French Ligue 1”), then select one to see its teams.
-</string>
+    <string name="league_placeholder_subtitle">Start typing to search a league (e.g., “English Premier League”, “French Ligue 1”), then select one to see its teams.</string>
+    <string name="autocomplete_hint">Search a league</string>
+    <string name="autocomplete_clear_description">Clear text</string>
+    <string name="team_mode_toggle_grid">Grid</string>
+    <string name="team_mode_toggle_list">List</string>
+    <string name="error_scree_message">Failed to load teams.</string>
 </resources>

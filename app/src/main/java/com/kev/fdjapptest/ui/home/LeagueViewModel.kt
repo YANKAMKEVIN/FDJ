@@ -58,7 +58,6 @@ class LeagueViewModel @Inject constructor(
         }
     }
 
-
     fun onQueryChange(text: String) {
         updateState {
             it.copy(

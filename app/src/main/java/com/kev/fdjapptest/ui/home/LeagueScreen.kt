@@ -20,11 +20,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kev.domain.model.League
 import com.kev.domain.model.Team
 import com.kev.domain.util.Result
+import com.kev.fdjapptest.R
 import com.kev.fdjapptest.ui.components.AutocompleteField
 import com.kev.fdjapptest.ui.components.ErrorScreen
 import com.kev.fdjapptest.ui.components.LeaguePlaceHolder
@@ -115,7 +117,7 @@ fun LeagueScreenContent(
                             null -> LeaguePlaceHolder()
 
                             is Result.Failure -> ErrorScreen(
-                                message = "Failed to load teams.",
+                                message = stringResource(R.string.error_scree_message),
                                 onRetry = onRetrySeed
                             )
 

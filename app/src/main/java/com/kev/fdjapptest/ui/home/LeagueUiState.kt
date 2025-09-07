@@ -4,13 +4,6 @@ import com.kev.domain.model.League
 import com.kev.domain.model.Team
 import com.kev.domain.util.Result
 
-sealed interface ScreenState<out T> {
-    data object Idle : ScreenState<Nothing>
-    data object Loading : ScreenState<Nothing>
-    data class Success<T>(val data: T) : ScreenState<T>
-    data class Error(val message: String) : ScreenState<Nothing>
-}
-
 /**
  * UI state for the League screen.
  */
@@ -23,7 +16,7 @@ data class LeagueUiState(
     val isSuggestionsOpen: Boolean = false,
     val isRefreshing: Boolean = false,
     val lastUpdatedMillis: Long? = null,
-    val displayMode: TeamsDisplayMode = TeamsDisplayMode.List,
+    val displayMode: TeamsDisplayMode = TeamsDisplayMode.Grid,
     val isTeamsLoading: Boolean = false,
 )
 

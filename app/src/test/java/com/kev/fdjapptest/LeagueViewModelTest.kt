@@ -19,7 +19,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -35,8 +34,10 @@ class LeagueViewModelTest {
 
     @MockK
     lateinit var getAllLeagues: GetAllLeaguesUseCase
+
     @MockK
     lateinit var getTeamsForLeague: GetTeamsForLeagueUseCase
+
     @MockK
     lateinit var refreshLeagues: RefreshLeaguesUseCase
 

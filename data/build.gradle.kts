@@ -1,3 +1,12 @@
+import java.util.Properties
+
+val localProperties = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists())
+        f.inputStream().use { load(it) }
+}
+val sportsDbKey = localProperties.getProperty("THE_SPORTS_DB_API_KEY") ?: "3"
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -10,10 +19,13 @@ plugins {
 android {
     namespace = "com.kev.data"
     compileSdk = 36
-
     defaultConfig {
         minSdk = 28
-        buildConfigField("String", "TSDB_API_KEY", "\"3\"")
+        buildConfigField(
+            "String",
+            "TSDB_API_KEY",
+            "\"$sportsDbKey\""
+        )
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -80,9 +92,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    androidTestImplementation (libs.mockwebserver)
-    //debugImplementation(libs.androidx.ui.tooling)
-    //debugImplementation(libs.androidx.ui.test.manifest)
+    androidTestImplementation(libs.mockwebserver)
 
     //Robolectric
     testImplementation(libs.robolectric)

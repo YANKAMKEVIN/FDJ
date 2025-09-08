@@ -24,11 +24,6 @@ Kotlin • Coroutines • Flow • Jetpack Compose (M3) • Hilt • Room • Re
 ```
 THE_SPORTS_DB_API_KEY=3
 ```
-2) Expose in `app/build.gradle`:
-```gradle
-buildConfigField "String", "SPORTS_DB_API_KEY",
-  "\"${properties.getProperty('THE_SPORTS_DB_API_KEY', '3')}\""
-```
 
 ## Build & Run
 ```bash

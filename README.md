@@ -52,6 +52,11 @@ Run all:
 - **data/**: DTOs (Moshi), API, Room (entities/dao/db), repository impl, error mapping.
 
 ## Screenshots
+
+<p align="center">
+  <img src="images/screenshot-home.png" alt="FDJ app screenshot" width="300" />
+</p>
+
 ![fdj_3](https://github.com/user-attachments/assets/a180903e-953e-45c8-aac5-8e65f4896b99)
 ![fdj_2](https://github.com/user-attachments/assets/9deff56f-e50f-438d-a66c-8d7d00f00dd5)
 ![fdj_1](https://github.com/user-attachments/assets/31bb41f7-1cae-4b3e-861e-00bd3f625ce7)

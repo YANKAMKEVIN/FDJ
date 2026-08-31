@@ -54,14 +54,14 @@ Run all:
 ## Screenshots
 
 <p align="center">
-  <img src="images/screenshot-home.png" alt="FDJ app screenshot" width="300" />
+  <img src="images/screenshot-home.png" alt="FDJ app screenshot" width="240" />
 </p>
 
-![fdj_3](https://github.com/user-attachments/assets/a180903e-953e-45c8-aac5-8e65f4896b99)
-![fdj_2](https://github.com/user-attachments/assets/9deff56f-e50f-438d-a66c-8d7d00f00dd5)
-![fdj_1](https://github.com/user-attachments/assets/31bb41f7-1cae-4b3e-861e-00bd3f625ce7)
-![fdj_5](https://github.com/user-attachments/assets/24a582fb-40cd-4192-b1c2-d90a8d881eb4)
-![fdj_4](https://github.com/user-attachments/assets/51f923be-e1f2-4af5-9bee-436b477d8477)
+<img src="https://github.com/user-attachments/assets/a180903e-953e-45c8-aac5-8e65f4896b99" alt="fdj_3" width="240" />
+<img src="https://github.com/user-attachments/assets/9deff56f-e50f-438d-a66c-8d7d00f00dd5" alt="fdj_2" width="240" />
+<img src="https://github.com/user-attachments/assets/31bb41f7-1cae-4b3e-861e-00bd3f625ce7" alt="fdj_1" width="240" />
+<img src="https://github.com/user-attachments/assets/24a582fb-40cd-4192-b1c2-d90a8d881eb4" alt="fdj_5" width="240" />
+<img src="https://github.com/user-attachments/assets/51f923be-e1f2-4af5-9bee-436b477d8477" alt="fdj_4" width="240" />
 
 ## Future Improvements
 - Add navigation to details screen.

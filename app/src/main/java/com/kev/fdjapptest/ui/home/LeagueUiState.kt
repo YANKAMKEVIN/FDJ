@@ -2,6 +2,7 @@ package com.kev.fdjapptest.ui.home
 
 import com.kev.domain.model.League
 import com.kev.domain.model.Team
+import com.kev.domain.util.DomainError
 import com.kev.domain.util.Result
 
 /**
@@ -18,6 +19,8 @@ data class LeagueUiState(
     val lastUpdatedMillis: Long? = null,
     val displayMode: TeamsDisplayMode = TeamsDisplayMode.Grid,
     val isTeamsLoading: Boolean = false,
+    /** Set when the league list could not be loaded (the search cannot suggest anything). */
+    val leaguesError: DomainError? = null,
 )
 
 enum class TeamsDisplayMode { List, Grid }

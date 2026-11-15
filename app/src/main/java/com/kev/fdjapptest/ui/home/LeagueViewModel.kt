@@ -50,12 +50,22 @@ class LeagueViewModel @Inject constructor(
                     val savedName: String? = savedStateHandle[KEY_SELECTED_LEAGUE]
                     val restored =
                         savedName?.let { name -> leagues.firstOrNull { it.name == name } }
-                    updateState { it.copy(leagues = leagues, selectedLeague = restored) }
+                    updateState {
+                        it.copy(leagues = leagues, selectedLeague = restored, leaguesError = null)
+                    }
                 }
 
-                is Result.Failure -> updateState { it.copy(leagues = emptyList()) }
+                is Result.Failure -> updateState {
+                    it.copy(leagues = emptyList(), leaguesError = res.error)
+                }
             }
         }
+    }
+
+    /** Retry action of the "leagues could not be loaded" error. */
+    fun retryLoadLeagues() {
+        updateState { it.copy(leaguesError = null) }
+        loadLeaguesIfNeeded()
     }
 
     fun onQueryChange(text: String) {
@@ -108,11 +118,18 @@ class LeagueViewModel @Inject constructor(
                     it.copy(
                         leagues = res.value,
                         isRefreshing = false,
-                        lastUpdatedMillis = System.currentTimeMillis()
+                        lastUpdatedMillis = System.currentTimeMillis(),
+                        leaguesError = null
                     )
                 }
 
-                is Result.Failure -> updateState { it.copy(isRefreshing = false) }
+                is Result.Failure -> updateState {
+                    // Keep the leagues already shown; only report the error when there is nothing to search.
+                    it.copy(
+                        isRefreshing = false,
+                        leaguesError = if (it.leagues.isEmpty()) res.error else it.leaguesError
+                    )
+                }
             }
         }
     }

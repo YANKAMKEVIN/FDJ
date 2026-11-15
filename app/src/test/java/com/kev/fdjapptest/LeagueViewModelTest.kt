@@ -20,6 +20,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -233,4 +234,35 @@ class LeagueViewModelTest {
         assert(s.lastUpdatedMillis == null)
     }
 
+    @Test
+    fun `a slow answer for the previous league does not overwrite the selected league teams`() = runTest {
+        coEvery { getAllLeagues() } returns Result.Success(listOf(EPL, L1))
+        coEvery { getTeamsForLeague(EPL.name) } coAnswers { delay(5_000); Result.Success(TEAMS_EPL) }
+        coEvery { getTeamsForLeague(L1.name) } coAnswers { delay(100); Result.Success(TEAMS_L1) }
+        vm = newVm(); advanceUntilIdle()
+
+        vm.onLeagueSelected(EPL)
+        vm.onLeagueSelected(L1)
+        advanceUntilIdle()
+
+        val s = vm.state.value
+        assert(s.selectedLeague == L1)
+        assert(!s.isTeamsLoading)
+        assert((s.teams as Result.Success<List<Team>>).value == TEAMS_L1) { "teams were ${s.teams}" }
+    }
+
+    @Test
+    fun `clearing the selection drops the pending teams request`() = runTest {
+        coEvery { getAllLeagues() } returns Result.Success(listOf(EPL))
+        coEvery { getTeamsForLeague(EPL.name) } coAnswers { delay(1_000); Result.Success(TEAMS_EPL) }
+        vm = newVm(); advanceUntilIdle()
+
+        vm.onLeagueSelected(EPL)
+        vm.clearQueryAndSelection()
+        advanceUntilIdle()
+
+        val s = vm.state.value
+        assert(s.selectedLeague == null)
+        assert(s.teams == null) { "teams were ${s.teams}" }
+    }
 }

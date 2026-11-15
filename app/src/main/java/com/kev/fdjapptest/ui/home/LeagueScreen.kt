@@ -126,7 +126,9 @@ fun LeagueScreenContent(
                                     mode = state.displayMode,
                                     listState = listState,
                                     snapshot = res.value,
-                                    onTeamClick = {},
+                                    // The grid only shows badges: a tap opens the same preview as a
+                                    // long press, so the team name is one tap away.
+                                    onTeamClick = { previewTeam = it },
                                     onTeamLongPress = { previewTeam = it }
                                 )
                             }

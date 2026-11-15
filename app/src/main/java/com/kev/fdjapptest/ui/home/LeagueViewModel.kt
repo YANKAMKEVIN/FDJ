@@ -50,7 +50,16 @@ class LeagueViewModel @Inject constructor(
                     val savedName: String? = savedStateHandle[KEY_SELECTED_LEAGUE]
                     val restored =
                         savedName?.let { name -> leagues.firstOrNull { it.name == name } }
-                    updateState { it.copy(leagues = leagues, selectedLeague = restored) }
+                    // After process death only the league name survives in the SavedStateHandle:
+                    // reload its teams instead of leaving the restored selection with an empty screen.
+                    updateState {
+                        it.copy(
+                            leagues = leagues,
+                            selectedLeague = restored,
+                            isTeamsLoading = restored != null
+                        )
+                    }
+                    restored?.let(::fetchTeams)
                 }
 
                 is Result.Failure -> updateState { it.copy(leagues = emptyList()) }
@@ -88,7 +97,10 @@ class LeagueViewModel @Inject constructor(
                 isTeamsLoading = true
             )
         }
+        fetchTeams(league)
+    }
 
+    private fun fetchTeams(league: League) {
         viewModelScope.launch {
             when (val res = getTeamsForLeague(league.name)) {
                 is Result.Success -> {

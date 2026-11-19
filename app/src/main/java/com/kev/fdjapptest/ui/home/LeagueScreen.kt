@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kev.domain.model.League
 import com.kev.domain.model.Team
+import com.kev.domain.util.DomainError
 import com.kev.domain.util.Result
 import com.kev.fdjapptest.R
 import com.kev.fdjapptest.ui.components.AutocompleteField
@@ -49,7 +50,8 @@ fun LeagueScreen(viewModel: LeagueViewModel = hiltViewModel()) {
         onRefresh = viewModel::onRefreshLeagues,
         onRetrySeed = { state.selectedLeague?.let(viewModel::onLeagueSelected) },
         onClearQuery = viewModel::clearQueryAndSelection,
-        onDisplayModeChange = viewModel::onDisplayModeChange
+        onDisplayModeChange = viewModel::onDisplayModeChange,
+        onRetryLeagues = viewModel::retryLoadLeagues
     )
 }
 
@@ -63,7 +65,8 @@ fun LeagueScreenContent(
     onRefresh: () -> Unit,
     onRetrySeed: () -> Unit,
     onClearQuery: () -> Unit,
-    onDisplayModeChange: (TeamsDisplayMode) -> Unit
+    onDisplayModeChange: (TeamsDisplayMode) -> Unit,
+    onRetryLeagues: () -> Unit = {}
 ) {
     val pullState = rememberPullToRefreshState()
     val listState = rememberLazyListState()
@@ -114,7 +117,20 @@ fun LeagueScreenContent(
                         }
                     } else {
                         when (val res = state.teams) {
-                            null -> LeaguePlaceHolder()
+                            null -> if (state.leaguesError != null && state.leagues.isEmpty()) {
+                                ErrorScreen(
+                                    message = stringResource(
+                                        if (state.leaguesError == DomainError.Network) {
+                                            R.string.leagues_error_network_message
+                                        } else {
+                                            R.string.leagues_error_message
+                                        }
+                                    ),
+                                    onRetry = onRetryLeagues
+                                )
+                            } else {
+                                LeaguePlaceHolder()
+                            }
 
                             is Result.Failure -> ErrorScreen(
                                 message = stringResource(R.string.error_scree_message),

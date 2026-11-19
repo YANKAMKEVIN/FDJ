@@ -10,4 +10,6 @@
     <string name="team_mode_toggle_grid">Grid</string>
     <string name="team_mode_toggle_list">List</string>
     <string name="error_scree_message">Failed to load teams.</string>
+    <string name="leagues_error_message">Failed to load the leagues.</string>
+    <string name="leagues_error_network_message">Unable to load the leagues. Check your internet connection and try again.</string>
 </resources>

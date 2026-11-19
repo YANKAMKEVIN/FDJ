@@ -265,4 +265,40 @@ class LeagueViewModelTest {
         assert(s.selectedLeague == null)
         assert(s.teams == null) { "teams were ${s.teams}" }
     }
+
+    @Test
+    fun `init exposes the leagues error when getAllLeagues fails`() = runTest {
+        coEvery { getAllLeagues() } returns Result.Failure(DomainError.Network)
+
+        vm = newVm(); advanceUntilIdle()
+
+        assert(vm.state.value.leaguesError == DomainError.Network)
+    }
+
+    @Test
+    fun `retryLoadLeagues reloads the leagues and clears the error`() = runTest {
+        coEvery { getAllLeagues() } returns Result.Failure(DomainError.Network) andThen
+            Result.Success(listOf(EPL, L1))
+        vm = newVm(); advanceUntilIdle()
+
+        vm.retryLoadLeagues(); advanceUntilIdle()
+
+        val s = vm.state.value
+        assert(s.leaguesError == null)
+        assert(s.leagues == listOf(EPL, L1))
+        coVerify(exactly = 2) { getAllLeagues() }
+    }
+
+    @Test
+    fun `a failed refresh keeps the loaded leagues without reporting an error`() = runTest {
+        coEvery { getAllLeagues() } returns Result.Success(listOf(EPL))
+        coEvery { refreshLeagues() } returns Result.Failure(DomainError.Network)
+        vm = newVm(); advanceUntilIdle()
+
+        vm.onRefreshLeagues(); advanceUntilIdle()
+
+        val s = vm.state.value
+        assert(s.leagues == listOf(EPL))
+        assert(s.leaguesError == null)
+    }
 }

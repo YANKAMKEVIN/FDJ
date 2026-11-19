@@ -186,6 +186,7 @@ class LeagueViewModelTest {
     @Test
     fun `restores selectedLeague from SavedStateHandle when leagues arrive`() = runTest {
         coEvery { getAllLeagues() } returns Result.Success(listOf(EPL, L1))
+        coEvery { getTeamsForLeague(L1.name) } returns Result.Success(TEAMS_L1)
 
         val saved = SavedStateHandle(
             mapOf(
@@ -300,5 +301,19 @@ class LeagueViewModelTest {
         val s = vm.state.value
         assert(s.leagues == listOf(EPL))
         assert(s.leaguesError == null)
+    }
+
+    @Test
+    fun `reloads the teams of the league restored from SavedStateHandle`() = runTest {
+        coEvery { getAllLeagues() } returns Result.Success(listOf(EPL, L1))
+        coEvery { getTeamsForLeague(L1.name) } returns Result.Success(TEAMS_L1)
+        val saved = SavedStateHandle(mapOf("selected_league" to L1.name, "query" to L1.name))
+
+        vm = newVm(saved); advanceUntilIdle()
+
+        val s = vm.state.value
+        assert(s.selectedLeague == L1)
+        assert(!s.isTeamsLoading)
+        assert((s.teams as? Result.Success<List<Team>>)?.value == TEAMS_L1) { "teams were ${s.teams}" }
     }
 }

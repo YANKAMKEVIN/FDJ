@@ -9,6 +9,7 @@ import com.kev.domain.usecase.GetTeamsForLeagueUseCase
 import com.kev.domain.usecase.RefreshLeaguesUseCase
 import com.kev.domain.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -36,6 +37,9 @@ class LeagueViewModel @Inject constructor(
         )
     )
     val state = _state.asStateFlow()
+
+    /** Teams request of the current selection; cancelled when the selection changes. */
+    private var teamsJob: Job? = null
 
     init {
         loadLeaguesIfNeeded()
@@ -89,7 +93,10 @@ class LeagueViewModel @Inject constructor(
             )
         }
 
-        viewModelScope.launch {
+        // Cancel the previous request: a slow answer for an older league must not overwrite the
+        // teams of the league now selected.
+        teamsJob?.cancel()
+        teamsJob = viewModelScope.launch {
             when (val res = getTeamsForLeague(league.name)) {
                 is Result.Success -> {
                     updateState { it.copy(teams = res, isTeamsLoading = false) }
@@ -118,6 +125,7 @@ class LeagueViewModel @Inject constructor(
     }
 
     fun clearQueryAndSelection() {
+        teamsJob?.cancel()
         updateState {
             it.copy(
                 query = "",

@@ -1,5 +1,10 @@
 package com.kev.fdjapptest.ui.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -107,27 +112,38 @@ fun LeagueScreenContent(
                         onDismiss = onDismissSuggestions,
                         onClear = onClearQuery
                     )
-                    Spacer(Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                    // Header and Grid/List toggle appear only once there are teams to show:
+                    // the start and error screens keep the search field in focus.
+                    AnimatedVisibility(
+                        visible = state.showTeamsHeader || state.showDisplayModeToggle,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically()
                     ) {
-                        val league = state.selectedLeague
-                        if (league != null && state.showTeamsHeader) {
-                            TeamsHeader(
-                                leagueName = league.name,
-                                teamsCount = state.teamsCount,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(end = 12.dp)
-                            )
-                        } else {
-                            Spacer(Modifier.weight(1f))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val league = state.selectedLeague
+                            if (league != null && state.showTeamsHeader) {
+                                TeamsHeader(
+                                    leagueName = league.name,
+                                    teamsCount = state.teamsCount,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(end = 12.dp)
+                                )
+                            } else {
+                                Spacer(Modifier.weight(1f))
+                            }
+                            if (state.showDisplayModeToggle) {
+                                TeamsModeToggle(
+                                    mode = state.displayMode,
+                                    onChange = onDisplayModeChange
+                                )
+                            }
                         }
-                        TeamsModeToggle(
-                            mode = state.displayMode,
-                            onChange = onDisplayModeChange
-                        )
                     }
                     Spacer(Modifier.height(12.dp))
 

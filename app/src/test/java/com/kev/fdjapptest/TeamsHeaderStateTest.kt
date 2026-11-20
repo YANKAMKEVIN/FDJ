@@ -35,4 +35,13 @@ class TeamsHeaderStateTest {
         assertFalse(LeagueUiState().showTeamsHeader)
         assertFalse(LeagueUiState(selectedLeague = l1, teams = Result.Failure(DomainError.Network)).showTeamsHeader)
     }
+
+    @Test
+    fun `toggle shows only while teams load or when there are teams`() {
+        assertFalse(LeagueUiState().showDisplayModeToggle)
+        assertTrue(LeagueUiState(selectedLeague = l1, isTeamsLoading = true).showDisplayModeToggle)
+        assertTrue(LeagueUiState(selectedLeague = l1, teams = Result.Success(teams)).showDisplayModeToggle)
+        assertFalse(LeagueUiState(selectedLeague = l1, teams = Result.Success(emptyList())).showDisplayModeToggle)
+        assertFalse(LeagueUiState(selectedLeague = l1, teams = Result.Failure(DomainError.Network)).showDisplayModeToggle)
+    }
 }

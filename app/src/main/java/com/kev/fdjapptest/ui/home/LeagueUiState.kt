@@ -35,6 +35,10 @@ data class LeagueUiState(
     /** The teams area has a league to title: its teams are loading or loaded. */
     val showTeamsHeader: Boolean
         get() = selectedLeague != null && (isTeamsLoading || teams is Result.Success)
+
+    /** The Grid/List toggle only matters when there are teams to show (or about to be). */
+    val showDisplayModeToggle: Boolean
+        get() = isTeamsLoading || (teamsCount ?: 0) > 0
 }
 
 enum class TeamsDisplayMode { List, Grid }

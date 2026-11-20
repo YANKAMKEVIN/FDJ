@@ -21,6 +21,9 @@ data class LeagueUiState(
     val isTeamsLoading: Boolean = false,
     /** Set when the league list could not be loaded (the search cannot suggest anything). */
     val leaguesError: DomainError? = null,
-)
+) {
+    /** Well-known leagues offered as one-tap shortcuts before anything is typed. */
+    val popularLeagues: List<League> get() = popularLeaguesOf(leagues)
+}
 
 enum class TeamsDisplayMode { List, Grid }

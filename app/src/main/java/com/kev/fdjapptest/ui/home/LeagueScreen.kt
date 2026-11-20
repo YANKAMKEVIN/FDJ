@@ -129,7 +129,10 @@ fun LeagueScreenContent(
                                     onRetry = onRetryLeagues
                                 )
                             } else {
-                                LeaguePlaceHolder()
+                                LeaguePlaceHolder(
+                                    popularLeagues = state.popularLeagues,
+                                    onLeagueClick = onSelectLeague
+                                )
                             }
 
                             is Result.Failure -> ErrorScreen(

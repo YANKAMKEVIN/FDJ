@@ -21,11 +21,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -65,7 +68,8 @@ fun LeagueScreen(viewModel: LeagueViewModel = hiltViewModel()) {
         onRetrySeed = { state.selectedLeague?.let(viewModel::onLeagueSelected) },
         onClearQuery = viewModel::clearQueryAndSelection,
         onDisplayModeChange = viewModel::onDisplayModeChange,
-        onRetryLeagues = viewModel::retryLoadLeagues
+        onRetryLeagues = viewModel::retryLoadLeagues,
+        onRefreshErrorShown = viewModel::onRefreshErrorShown
     )
 }
 
@@ -80,11 +84,24 @@ fun LeagueScreenContent(
     onRetrySeed: () -> Unit,
     onClearQuery: () -> Unit,
     onDisplayModeChange: (TeamsDisplayMode) -> Unit,
-    onRetryLeagues: () -> Unit = {}
+    onRetryLeagues: () -> Unit = {},
+    onRefreshErrorShown: () -> Unit = {}
 ) {
     val pullState = rememberPullToRefreshState()
     val listState = rememberLazyListState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val refreshErrorMessage = stringResource(R.string.refresh_error_message)
+    val retryLabel = stringResource(R.string.retry_button_label)
+    LaunchedEffect(state.refreshFailed) {
+        if (!state.refreshFailed) return@LaunchedEffect
+        val result = snackbarHostState.showSnackbar(
+            message = refreshErrorMessage,
+            actionLabel = retryLabel,
+            duration = SnackbarDuration.Short
+        )
+        onRefreshErrorShown()
+        if (result == SnackbarResult.ActionPerformed) onRefresh()
+    }
     // The last team previewed stays set while the preview plays its exit animation.
     var previewTeam by remember { mutableStateOf<Team?>(null) }
     var isPreviewVisible by remember { mutableStateOf(false) }

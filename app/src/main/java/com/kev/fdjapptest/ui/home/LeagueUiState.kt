@@ -21,6 +21,8 @@ data class LeagueUiState(
     val isTeamsLoading: Boolean = false,
     /** Set when the league list could not be loaded (the search cannot suggest anything). */
     val leaguesError: DomainError? = null,
+    /** One-shot: a pull-to-refresh failed while data was shown; the screen shows a snackbar. */
+    val refreshFailed: Boolean = false,
 ) {
     /** Well-known leagues offered as one-tap shortcuts before anything is typed. */
     val popularLeagues: List<League> get() = popularLeaguesOf(leagues)

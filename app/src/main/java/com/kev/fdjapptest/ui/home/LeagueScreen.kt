@@ -2,6 +2,8 @@ package com.kev.fdjapptest.ui.home
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -9,7 +11,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -68,7 +69,7 @@ fun LeagueScreen(viewModel: LeagueViewModel = hiltViewModel()) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun LeagueScreenContent(
     state: LeagueUiState,
@@ -106,7 +107,9 @@ fun LeagueScreenContent(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            Box(modifier = Modifier.fillMaxSize()) {
+            // Shared transitions let a grid badge grow into the team preview.
+            SharedTransitionLayout(modifier = Modifier.fillMaxSize()) {
+                val sharedScope = this
                 Column(
                     Modifier
                         .fillMaxSize()
@@ -203,7 +206,9 @@ fun LeagueScreenContent(
                                 snapshot = area.teams,
                                 // A tap opens the same preview as a long press: the badge, larger.
                                 onTeamClick = openPreview,
-                                onTeamLongPress = openPreview
+                                onTeamLongPress = openPreview,
+                                sharedScope = sharedScope,
+                                previewTeamId = previewTeam?.id?.takeIf { isPreviewVisible }
                             )
                         }
                     }
@@ -212,7 +217,8 @@ fun LeagueScreenContent(
                     TeamPreviewOverlay(
                         team = team,
                         visible = isPreviewVisible,
-                        onDismiss = { isPreviewVisible = false }
+                        onDismiss = { isPreviewVisible = false },
+                        sharedScope = sharedScope
                     )
                 }
             }

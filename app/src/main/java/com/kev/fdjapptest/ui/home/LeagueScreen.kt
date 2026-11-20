@@ -84,7 +84,13 @@ fun LeagueScreenContent(
     val pullState = rememberPullToRefreshState()
     val listState = rememberLazyListState()
     val snackbarHostState = remember { SnackbarHostState() }
+    // The last team previewed stays set while the preview plays its exit animation.
     var previewTeam by remember { mutableStateOf<Team?>(null) }
+    var isPreviewVisible by remember { mutableStateOf(false) }
+    val openPreview: (Team) -> Unit = {
+        previewTeam = it
+        isPreviewVisible = true
+    }
 
     Scaffold(
         topBar = {
@@ -196,14 +202,18 @@ fun LeagueScreenContent(
                                 listState = listState,
                                 snapshot = area.teams,
                                 // A tap opens the same preview as a long press: the badge, larger.
-                                onTeamClick = { previewTeam = it },
-                                onTeamLongPress = { previewTeam = it }
+                                onTeamClick = openPreview,
+                                onTeamLongPress = openPreview
                             )
                         }
                     }
                 }
-                if (previewTeam != null) {
-                    TeamPreviewOverlay(team = previewTeam!!, onDismiss = { previewTeam = null })
+                previewTeam?.let { team ->
+                    TeamPreviewOverlay(
+                        team = team,
+                        visible = isPreviewVisible,
+                        onDismiss = { isPreviewVisible = false }
+                    )
                 }
             }
         }

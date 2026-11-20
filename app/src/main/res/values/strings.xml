@@ -18,4 +18,5 @@
         <item quantity="one">%1$d team</item>
         <item quantity="other">%1$d teams</item>
     </plurals>
+    <string name="team_preview_close">Close preview</string>
 </resources>

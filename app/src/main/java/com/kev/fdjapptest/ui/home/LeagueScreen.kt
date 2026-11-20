@@ -97,6 +97,7 @@ fun LeagueScreenContent(
                         query = state.query,
                         suggestions = state.suggestions,
                         isOpen = state.isSuggestionsOpen,
+                        showNoMatch = state.showNoSuggestionMatch,
                         onQueryChange = onQueryChange,
                         onSelect = onSelectLeague,
                         onDismiss = onDismissSuggestions,

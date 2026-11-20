@@ -24,6 +24,10 @@ data class LeagueUiState(
 ) {
     /** Well-known leagues offered as one-tap shortcuts before anything is typed. */
     val popularLeagues: List<League> get() = popularLeaguesOf(leagues)
+
+    /** The user typed something that matches no loaded league: say so instead of closing the menu. */
+    val showNoSuggestionMatch: Boolean
+        get() = isSuggestionsOpen && query.isNotBlank() && leagues.isNotEmpty() && suggestions.isEmpty()
 }
 
 enum class TeamsDisplayMode { List, Grid }

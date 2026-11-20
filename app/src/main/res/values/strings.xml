@@ -14,4 +14,8 @@
     <string name="leagues_error_network_message">Unable to load the leagues. Check your internet connection and try again.</string>
     <string name="popular_leagues_title">Popular leagues</string>
     <string name="autocomplete_no_match">No league matches “%1$s”</string>
+    <plurals name="teams_count">
+        <item quantity="one">%1$d team</item>
+        <item quantity="other">%1$d teams</item>
+    </plurals>
 </resources>

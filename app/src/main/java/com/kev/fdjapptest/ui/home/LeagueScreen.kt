@@ -2,8 +2,10 @@ package com.kev.fdjapptest.ui.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -19,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -34,6 +37,7 @@ import com.kev.fdjapptest.ui.components.LeaguePlaceHolder
 import com.kev.fdjapptest.ui.components.LeagueTopBar
 import com.kev.fdjapptest.ui.components.TeamPreviewOverlay
 import com.kev.fdjapptest.ui.components.TeamsContent
+import com.kev.fdjapptest.ui.components.TeamsHeader
 import com.kev.fdjapptest.ui.components.TeamsModeToggle
 import com.kev.fdjapptest.ui.components.shimmer.TeamsSkeletonGrid
 import com.kev.fdjapptest.ui.components.shimmer.TeamsSkeletonList
@@ -104,10 +108,27 @@ fun LeagueScreenContent(
                         onClear = onClearQuery
                     )
                     Spacer(Modifier.height(12.dp))
-                    TeamsModeToggle(
-                        mode = state.displayMode,
-                        onChange = onDisplayModeChange
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val league = state.selectedLeague
+                        if (league != null && state.showTeamsHeader) {
+                            TeamsHeader(
+                                leagueName = league.name,
+                                teamsCount = state.teamsCount,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(end = 12.dp)
+                            )
+                        } else {
+                            Spacer(Modifier.weight(1f))
+                        }
+                        TeamsModeToggle(
+                            mode = state.displayMode,
+                            onChange = onDisplayModeChange
+                        )
+                    }
                     Spacer(Modifier.height(12.dp))
 
                     if (state.isTeamsLoading) {

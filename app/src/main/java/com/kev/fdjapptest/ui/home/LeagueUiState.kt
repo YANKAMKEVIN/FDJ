@@ -28,6 +28,13 @@ data class LeagueUiState(
     /** The user typed something that matches no loaded league: say so instead of closing the menu. */
     val showNoSuggestionMatch: Boolean
         get() = isSuggestionsOpen && query.isNotBlank() && leagues.isNotEmpty() && suggestions.isEmpty()
+
+    /** Number of teams shown, or null while they are loading / not loaded. */
+    val teamsCount: Int? get() = (teams as? Result.Success)?.value?.size
+
+    /** The teams area has a league to title: its teams are loading or loaded. */
+    val showTeamsHeader: Boolean
+        get() = selectedLeague != null && (isTeamsLoading || teams is Result.Success)
 }
 
 enum class TeamsDisplayMode { List, Grid }

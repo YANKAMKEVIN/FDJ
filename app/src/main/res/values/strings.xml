@@ -19,4 +19,7 @@
         <item quantity="other">%1$d teams</item>
     </plurals>
     <string name="team_preview_close">Close preview</string>
+    <string name="top_bar_title">Leagues &amp; Teams</string>
+    <string name="top_bar_updated">Updated %1$s</string>
+    <string name="top_bar_updated_just_now">Updated just now</string>
 </resources>

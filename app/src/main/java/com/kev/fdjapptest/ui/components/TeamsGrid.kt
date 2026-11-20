@@ -19,20 +19,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.SportsSoccer
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.SubcomposeAsyncImage
 import com.kev.domain.model.Team
 
 /** Size of the badge in a grid tile, shared with the loading skeleton. */
@@ -49,6 +46,7 @@ fun TeamsGrid(
     previewTeamId: String? = null
 ) {
     val cascade = rememberCascadeActive(teams)
+    val haptics = LocalHapticFeedback.current
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -62,14 +60,18 @@ fun TeamsGrid(
                     .cascadeIn(index, cascade)
                     .fillMaxWidth()
                     .aspectRatio(1f)
-                    .combinedClickable(
-                        onClick = { onTeamClick(team) },
-                        onLongClick = { onTeamLongPress(team) }
-                    )
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
+                        // Inside the card, so the ripple is clipped to its rounded shape.
+                        .combinedClickable(
+                            onClick = { onTeamClick(team) },
+                            onLongClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onTeamLongPress(team)
+                            }
+                        )
                         .padding(12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -118,13 +120,5 @@ fun TeamsGrid(
 
 @Composable
 private fun GridBadge(team: Team, modifier: Modifier) {
-    SubcomposeAsyncImage(
-        model = team.badgeUrl,
-        contentDescription = "${team.name} badge",
-        modifier = modifier.size(GridBadgeSize),
-        loading = {
-            CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-        },
-        error = { Icon(Icons.Default.SportsSoccer, contentDescription = null) }
-    )
+    TeamBadge(team = team, size = GridBadgeSize, modifier = modifier)
 }

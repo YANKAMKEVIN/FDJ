@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FDJ APP TEST</string>
+    <string name="app_name">FDJ Leagues</string>
     <string name="retry_button_label">Retry</string>
     <string name="error_screen_title">Oops, an error occurred</string>
     <string name="league_placeholder_title">Pick a league to view teams.</string>

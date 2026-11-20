@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,15 +40,18 @@ fun TeamsGrid(
     onTeamClick: (Team) -> Unit,
     onTeamLongPress: (Team) -> Unit = {}
 ) {
+    val cascade = rememberCascadeActive(teams)
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(teams, key = { it.id }) { team ->
+        itemsIndexed(teams, key = { _, team -> team.id }) { index, team ->
             ElevatedCard(
                 modifier = Modifier
+                    .animateItem()
+                    .cascadeIn(index, cascade)
                     .fillMaxWidth()
                     .aspectRatio(1f)
                     .combinedClickable(

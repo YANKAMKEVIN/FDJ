@@ -1,10 +1,14 @@
 package com.kev.fdjapptest.ui.home
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -147,55 +151,92 @@ fun LeagueScreenContent(
                     }
                     Spacer(Modifier.height(12.dp))
 
-                    if (state.isTeamsLoading) {
-                        if (state.displayMode == TeamsDisplayMode.Grid) {
-                            TeamsSkeletonGrid(count = 10)
-                        } else {
-                            TeamsSkeletonList(listState = listState, count = 10)
-                        }
-                    } else {
-                        when (val res = state.teams) {
-                            null -> if (state.leaguesError != null && state.leagues.isEmpty()) {
-                                ErrorScreen(
-                                    message = stringResource(
-                                        if (state.leaguesError == DomainError.Network) {
-                                            R.string.leagues_error_network_message
-                                        } else {
-                                            R.string.leagues_error_message
-                                        }
-                                    ),
-                                    onRetry = onRetryLeagues
-                                )
+                    // Loading, start, error and teams fade and slide into each other instead of
+                    // blinking; switching Grid/List animates the same way.
+                    AnimatedContent(
+                        targetState = state.toTeamsArea(),
+                        contentKey = { it.animationKey },
+                        transitionSpec = {
+                            (fadeIn(tween(220, delayMillis = 90)) +
+                                slideInVertically(tween(220, delayMillis = 90)) { it / 24 })
+                                .togetherWith(fadeOut(tween(90)))
+                        },
+                        label = "teamsArea"
+                    ) { area ->
+                        when (area) {
+                            is TeamsArea.Loading -> if (area.mode == TeamsDisplayMode.Grid) {
+                                TeamsSkeletonGrid(count = 10)
                             } else {
-                                LeaguePlaceHolder(
-                                    popularLeagues = state.popularLeagues,
-                                    onLeagueClick = onSelectLeague
-                                )
+                                TeamsSkeletonList(listState = listState, count = 10)
                             }
 
-                            is Result.Failure -> ErrorScreen(
+                            is TeamsArea.LeaguesError -> ErrorScreen(
+                                message = stringResource(
+                                    if (area.error == DomainError.Network) {
+                                        R.string.leagues_error_network_message
+                                    } else {
+                                        R.string.leagues_error_message
+                                    }
+                                ),
+                                onRetry = onRetryLeagues
+                            )
+
+                            is TeamsArea.Start -> LeaguePlaceHolder(
+                                popularLeagues = area.popularLeagues,
+                                onLeagueClick = onSelectLeague
+                            )
+
+                            TeamsArea.TeamsError -> ErrorScreen(
                                 message = stringResource(R.string.error_scree_message),
                                 onRetry = onRetrySeed
                             )
 
-                            is Result.Success -> {
-                                TeamsContent(
-                                    mode = state.displayMode,
-                                    listState = listState,
-                                    snapshot = res.value,
-                                    // A tap opens the same preview as a long press: the badge, larger.
-                                    onTeamClick = { previewTeam = it },
-                                    onTeamLongPress = { previewTeam = it }
-                                )
-                            }
+                            is TeamsArea.Teams -> TeamsContent(
+                                mode = area.mode,
+                                listState = listState,
+                                snapshot = area.teams,
+                                // A tap opens the same preview as a long press: the badge, larger.
+                                onTeamClick = { previewTeam = it },
+                                onTeamLongPress = { previewTeam = it }
+                            )
                         }
                     }
-
                 }
                 if (previewTeam != null) {
                     TeamPreviewOverlay(team = previewTeam!!, onDismiss = { previewTeam = null })
                 }
             }
         }
+    }
+}
+
+/** What the teams area shows; each value is a distinct screen for [AnimatedContent]. */
+private sealed interface TeamsArea {
+    data class Loading(val mode: TeamsDisplayMode) : TeamsArea
+    data class LeaguesError(val error: DomainError) : TeamsArea
+    data class Start(val popularLeagues: List<League>) : TeamsArea
+    data object TeamsError : TeamsArea
+    data class Teams(val mode: TeamsDisplayMode, val teams: List<Team>) : TeamsArea
+
+    /** New list of the same mode: same key, no transition (the items animate themselves). */
+    val animationKey: Any
+        get() = when (this) {
+            is Loading -> "loading-$mode"
+            is Teams -> "teams-$mode"
+            else -> this::class
+        }
+}
+
+private fun LeagueUiState.toTeamsArea(): TeamsArea {
+    if (isTeamsLoading) return TeamsArea.Loading(displayMode)
+    return when (val res = teams) {
+        null -> if (leaguesError != null && leagues.isEmpty()) {
+            TeamsArea.LeaguesError(leaguesError)
+        } else {
+            TeamsArea.Start(popularLeagues)
+        }
+
+        is Result.Failure -> TeamsArea.TeamsError
+        is Result.Success -> TeamsArea.Teams(displayMode, res.value)
     }
 }

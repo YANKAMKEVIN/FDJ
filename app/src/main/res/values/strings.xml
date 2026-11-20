@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FDJ APP TEST</string>
+    <string name="app_name">FDJ Leagues</string>
     <string name="retry_button_label">Retry</string>
     <string name="error_screen_title">Oops, an error occurred</string>
     <string name="league_placeholder_title">Pick a league to view teams.</string>
@@ -12,4 +12,15 @@
     <string name="error_scree_message">Failed to load teams.</string>
     <string name="leagues_error_message">Failed to load the leagues.</string>
     <string name="leagues_error_network_message">Unable to load the leagues. Check your internet connection and try again.</string>
+    <string name="popular_leagues_title">Popular leagues</string>
+    <string name="autocomplete_no_match">No league matches “%1$s”</string>
+    <plurals name="teams_count">
+        <item quantity="one">%1$d team</item>
+        <item quantity="other">%1$d teams</item>
+    </plurals>
+    <string name="team_preview_close">Close preview</string>
+    <string name="top_bar_title">Leagues &amp; Teams</string>
+    <string name="top_bar_updated">Updated %1$s</string>
+    <string name="top_bar_updated_just_now">Updated just now</string>
+    <string name="refresh_error_message">Couldn’t refresh. Showing saved data.</string>
 </resources>

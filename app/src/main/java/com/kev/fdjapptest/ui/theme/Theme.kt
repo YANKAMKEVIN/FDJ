@@ -1,6 +1,5 @@
 package com.kev.fdjapptest.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -11,33 +10,80 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+private val LightColorScheme = lightColorScheme(
+    primary = NavyPrimary,
+    onPrimary = NavyOnPrimary,
+    primaryContainer = NavyPrimaryContainer,
+    onPrimaryContainer = NavyOnPrimaryContainer,
+    inversePrimary = NavyPrimaryDark,
+    secondary = SkySecondary,
+    onSecondary = SkyOnSecondary,
+    secondaryContainer = SkySecondaryContainer,
+    onSecondaryContainer = SkyOnSecondaryContainer,
+    tertiary = RedTertiary,
+    onTertiary = RedOnTertiary,
+    tertiaryContainer = RedTertiaryContainer,
+    onTertiaryContainer = RedOnTertiaryContainer,
+    background = LightSurface,
+    onBackground = LightOnSurface,
+    surface = LightSurface,
+    onSurface = LightOnSurface,
+    surfaceVariant = LightSurfaceVariant,
+    onSurfaceVariant = LightOnSurfaceVariant,
+    surfaceTint = NavyPrimary,
+    inverseSurface = LightInverseSurface,
+    inverseOnSurface = LightInverseOnSurface,
+    outline = LightOutline,
+    outlineVariant = LightOutlineVariant,
+    surfaceBright = LightSurface,
+    surfaceDim = LightSurfaceDim,
+    surfaceContainerLowest = LightSurfaceContainerLowest,
+    surfaceContainerLow = LightSurfaceContainerLow,
+    surfaceContainer = LightSurfaceContainer,
+    surfaceContainerHigh = LightSurfaceContainerHigh,
+    surfaceContainerHighest = LightSurfaceContainerHighest,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+private val DarkColorScheme = darkColorScheme(
+    primary = NavyPrimaryDark,
+    onPrimary = NavyOnPrimaryDark,
+    primaryContainer = NavyPrimaryContainerDark,
+    onPrimaryContainer = NavyOnPrimaryContainerDark,
+    inversePrimary = NavyPrimary,
+    secondary = SkySecondaryDark,
+    onSecondary = SkyOnSecondaryDark,
+    secondaryContainer = SkySecondaryContainerDark,
+    onSecondaryContainer = SkyOnSecondaryContainerDark,
+    tertiary = RedTertiaryDark,
+    onTertiary = RedOnTertiaryDark,
+    tertiaryContainer = RedTertiaryContainerDark,
+    onTertiaryContainer = RedOnTertiaryContainerDark,
+    background = DarkSurface,
+    onBackground = DarkOnSurface,
+    surface = DarkSurface,
+    onSurface = DarkOnSurface,
+    surfaceVariant = DarkSurfaceVariant,
+    onSurfaceVariant = DarkOnSurfaceVariant,
+    surfaceTint = NavyPrimaryDark,
+    inverseSurface = DarkOnSurface,
+    inverseOnSurface = LightInverseSurface,
+    outline = DarkOutline,
+    outlineVariant = DarkOutlineVariant,
+    surfaceBright = DarkSurfaceBright,
+    surfaceDim = DarkSurface,
+    surfaceContainerLowest = DarkSurfaceContainerLowest,
+    surfaceContainerLow = DarkSurfaceContainerLow,
+    surfaceContainer = DarkSurfaceContainer,
+    surfaceContainerHigh = DarkSurfaceContainerHigh,
+    surfaceContainerHighest = DarkSurfaceContainerHighest,
 )
 
 @Composable
 fun FDJAPPTESTTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    // Off by default so the brand colours look the same on every device; wallpaper-based
+    // colours (Android 12+) remain available on demand.
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

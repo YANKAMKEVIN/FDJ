@@ -129,7 +129,9 @@ class LeagueViewModel @Inject constructor(
     }
 
     fun onRefreshLeagues() {
-        updateState { it.copy(isRefreshing = true) }
+        updateState { it.copy(isRefreshing = true, refreshFailed = false) }
+        // The gesture also refreshes what the user is looking at: the teams of the selection.
+        _state.value.selectedLeague?.let(::refreshTeams)
         viewModelScope.launch {
             when (val res = refreshLeaguesUseCase()) {
                 is Result.Success -> updateState {
@@ -142,14 +144,37 @@ class LeagueViewModel @Inject constructor(
                 }
 
                 is Result.Failure -> updateState {
-                    // Keep the leagues already shown; only report the error when there is nothing to search.
+                    // Keep the leagues already shown; only report the error when there is nothing to search,
+                    // otherwise tell the user the saved data is still shown.
                     it.copy(
                         isRefreshing = false,
-                        leaguesError = if (it.leagues.isEmpty()) res.error else it.leaguesError
+                        leaguesError = if (it.leagues.isEmpty()) res.error else it.leaguesError,
+                        refreshFailed = it.refreshFailed || it.leagues.isNotEmpty()
                     )
                 }
             }
         }
+    }
+
+    /** Reloads the teams of [league] in place: the current teams stay shown until the answer. */
+    private fun refreshTeams(league: League) {
+        teamsJob?.cancel()
+        teamsJob = viewModelScope.launch {
+            val res = getTeamsForLeague(league.name)
+            updateState {
+                when {
+                    res is Result.Success -> it.copy(teams = res, isTeamsLoading = false)
+                    // Keep the teams already shown and report the failed refresh.
+                    it.teams is Result.Success -> it.copy(refreshFailed = true)
+                    else -> it.copy(teams = res, isTeamsLoading = false)
+                }
+            }
+        }
+    }
+
+    /** The refresh failure snackbar was shown. */
+    fun onRefreshErrorShown() {
+        updateState { it.copy(refreshFailed = false) }
     }
 
     fun clearQueryAndSelection() {

@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -42,11 +42,11 @@ fun ShimmerBox(
         label = "shimmerX"
     )
 
-    // Colors for the skeleton sweep
-    val base = Color(0xFFE0E0E0)
-    val highlight = Color(0xFFF5F5F5)
+    // Colors for the skeleton sweep, from the theme so the skeleton stays soft in dark mode
+    val base = MaterialTheme.colorScheme.surfaceContainerHighest
+    val highlight = MaterialTheme.colorScheme.surfaceContainerLowest
 
-    val brush = remember(size, animatedX) {
+    val brush = remember(size, animatedX, base, highlight) {
         val width = size.width.coerceAtLeast(1)
         val height = size.height.coerceAtLeast(1)
         // Animate a diagonal gradient from left-top to right-bottom

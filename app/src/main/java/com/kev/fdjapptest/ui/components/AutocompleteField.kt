@@ -1,14 +1,21 @@
 package com.kev.fdjapptest.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -22,8 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.kev.domain.model.League
 import com.kev.fdjapptest.R
 
@@ -33,6 +42,7 @@ fun AutocompleteField(
     query: String,
     suggestions: List<League>,
     isOpen: Boolean,
+    showNoMatch: Boolean = false,
     onQueryChange: (String) -> Unit,
     onSelect: (League) -> Unit,
     onDismiss: () -> Unit,
@@ -50,8 +60,10 @@ fun AutocompleteField(
         }
     }
 
+    val expanded = isOpen && (suggestions.isNotEmpty() || showNoMatch)
+
     ExposedDropdownMenuBox(
-        expanded = isOpen && suggestions.isNotEmpty(),
+        expanded = expanded,
         onExpandedChange = {}
     ) {
         OutlinedTextField(
@@ -61,6 +73,16 @@ fun AutocompleteField(
                 onQueryChange(it.text)
             },
             label = { Text(stringResource(R.string.autocomplete_hint)) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+            shape = RoundedCornerShape(28.dp),
+            // "Search" on the keyboard picks the first suggestion and closes the keyboard.
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    suggestions.firstOrNull()?.let(onSelect)
+                    keyboardController?.hide()
+                }
+            ),
             modifier = Modifier
                 .menuAnchor(
                     type = MenuAnchorType.PrimaryEditable,
@@ -88,12 +110,49 @@ fun AutocompleteField(
         )
 
         ExposedDropdownMenu(
-            expanded = isOpen && suggestions.isNotEmpty(),
+            expanded = expanded,
             onDismissRequest = onDismiss
         ) {
+            if (suggestions.isEmpty() && showNoMatch) {
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = stringResource(R.string.autocomplete_no_match, query.trim()),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    leadingIcon = { Icon(Icons.Default.SearchOff, contentDescription = null) },
+                    onClick = {},
+                    enabled = false
+                )
+            }
             suggestions.forEach { league ->
                 DropdownMenuItem(
-                    text = { Text(league.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    text = {
+                        Column {
+                            Text(
+                                text = highlightMatch(league.name, query),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            league.sport?.takeIf { it.isNotBlank() }?.let { sport ->
+                                Text(
+                                    text = sport,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1
+                                )
+                            }
+                        }
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = sportIcon(league.sport),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
                     onClick = {
                         onSelect(league)
                         keyboardController?.hide()

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.FDJAPPTEST" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Light window by default; values-night switches the parent to the dark one. -->
+    <style name="Base.Theme.FDJAPPTEST" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- Launch screen before Android 12: the icon on the brand background instead of a white flash. -->
+    <style name="Theme.FDJAPPTEST" parent="Base.Theme.FDJAPPTEST">
+        <item name="android:windowBackground">@drawable/splash_window</item>
+    </style>
 </resources>

@@ -1,14 +1,21 @@
 package com.kev.fdjapptest.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,27 +30,34 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.kev.domain.model.League
 import com.kev.fdjapptest.R
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LeaguePlaceHolder(
     title: String = stringResource(R.string.league_placeholder_title),
     subtitle: String = stringResource(R.string.league_placeholder_subtitle),
-    lottieRes: Int = R.raw.league_placeholder
+    lottieRes: Int = R.raw.league_placeholder,
+    popularLeagues: List<League> = emptyList(),
+    onLeagueClick: (League) -> Unit = {}
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(lottieRes))
     val progress by animateLottieCompositionAsState(
         composition,
         iterations = LottieConstants.IterateForever
     )
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
+    // Scrollable so the shortcuts stay reachable on short screens (or with the keyboard open),
+    // while the content stays centred when it fits.
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(24.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .heightIn(min = maxHeight)
+                .padding(24.dp)
         ) {
 
             LottieAnimation(
@@ -68,6 +82,27 @@ fun LeaguePlaceHolder(
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center
             )
+
+            if (popularLeagues.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = stringResource(R.string.popular_leagues_title),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+                ) {
+                    popularLeagues.forEach { league ->
+                        SuggestionChip(
+                            onClick = { onLeagueClick(league) },
+                            label = { Text(league.name) }
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -75,5 +110,11 @@ fun LeaguePlaceHolder(
 @Preview
 @Composable
 fun LeaguePlaceHolderPreview() {
-    LeaguePlaceHolder()
+    LeaguePlaceHolder(
+        popularLeagues = listOf(
+            League("1", "English Premier League", "Soccer"),
+            League("2", "French Ligue 1", "Soccer"),
+            League("3", "NBA", "Basketball")
+        )
+    )
 }

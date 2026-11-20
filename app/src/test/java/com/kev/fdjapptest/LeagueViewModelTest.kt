@@ -316,4 +316,64 @@ class LeagueViewModelTest {
         assert(!s.isTeamsLoading)
         assert((s.teams as? Result.Success<List<Team>>)?.value == TEAMS_L1) { "teams were ${s.teams}" }
     }
+
+    @Test
+    fun `a failed refresh with leagues shown asks for the snackbar until it is shown`() = runTest {
+        coEvery { getAllLeagues() } returns Result.Success(listOf(EPL))
+        coEvery { refreshLeagues() } returns Result.Failure(DomainError.Network)
+        vm = newVm(); advanceUntilIdle()
+
+        vm.onRefreshLeagues(); advanceUntilIdle()
+        assert(vm.state.value.refreshFailed)
+
+        vm.onRefreshErrorShown()
+        assert(!vm.state.value.refreshFailed)
+    }
+
+    @Test
+    fun `a failed refresh without leagues shows the error screen, not the snackbar`() = runTest {
+        coEvery { getAllLeagues() } returns Result.Failure(DomainError.Network)
+        coEvery { refreshLeagues() } returns Result.Failure(DomainError.Network)
+        vm = newVm(); advanceUntilIdle()
+
+        vm.onRefreshLeagues(); advanceUntilIdle()
+
+        val s = vm.state.value
+        assert(!s.refreshFailed)
+        assert(s.leaguesError == DomainError.Network)
+    }
+
+    @Test
+    fun `refresh also reloads the teams of the selected league`() = runTest {
+        val updated = TEAMS_L1 + Team(id = "f3", name = "Nice", badgeUrl = null)
+        coEvery { getAllLeagues() } returns Result.Success(listOf(L1))
+        coEvery { refreshLeagues() } returns Result.Success(listOf(L1))
+        coEvery { getTeamsForLeague(L1.name) } returns Result.Success(TEAMS_L1) andThen Result.Success(updated)
+        vm = newVm(); advanceUntilIdle()
+        vm.onLeagueSelected(L1); advanceUntilIdle()
+
+        vm.onRefreshLeagues(); advanceUntilIdle()
+
+        val s = vm.state.value
+        assert((s.teams as Result.Success<List<Team>>).value == updated) { "teams were ${s.teams}" }
+        assert(!s.isTeamsLoading)
+        assert(!s.refreshFailed)
+        coVerify(exactly = 2) { getTeamsForLeague(L1.name) }
+    }
+
+    @Test
+    fun `a failed teams refresh keeps the shown teams and reports it`() = runTest {
+        coEvery { getAllLeagues() } returns Result.Success(listOf(L1))
+        coEvery { refreshLeagues() } returns Result.Success(listOf(L1))
+        coEvery { getTeamsForLeague(L1.name) } returns Result.Success(TEAMS_L1) andThen
+            Result.Failure(DomainError.Network)
+        vm = newVm(); advanceUntilIdle()
+        vm.onLeagueSelected(L1); advanceUntilIdle()
+
+        vm.onRefreshLeagues(); advanceUntilIdle()
+
+        val s = vm.state.value
+        assert((s.teams as Result.Success<List<Team>>).value == TEAMS_L1) { "teams were ${s.teams}" }
+        assert(s.refreshFailed)
+    }
 }

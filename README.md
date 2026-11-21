@@ -1,4 +1,4 @@
-# FDJ Sports (Android)
+# FDJ Leagues (Android)
 
 Clean, testable Android app to search football **leagues** and browse **teams** via **TheSportsDB**.
 
@@ -8,12 +8,15 @@ Clean, testable Android app to search football **leagues** and browse **teams** 
 - **Result-first** flow: `Result.Success / Result.Failure` with `DomainError`.
 
 ## Features
-- League **autocomplete** (case-insensitive, top 10).
-- Teams in **List/Grid** (toggle).
-- **Pull-to-refresh** (Material 3).
-- **Skeleton** loaders, **error** & **placeholder** screens.
-- Long-press **preview overlay** (animated pop + optional shimmer).
-- **Offline fallback** from Room if network fails.
+- League **autocomplete** (case-insensitive, top 10) with sport icon, typed part in bold and a "no match" row.
+- **Popular leagues** offered in one tap on the start screen.
+- Teams in **List/Grid** (toggle), with a header "League · N teams".
+- **Pull-to-refresh** (Material 3): refreshes leagues and the teams shown; a snackbar reports a failed refresh.
+- "Updated 2 min. ago" in the top bar after a refresh.
+- **Skeleton** loaders, **error** (with Retry) & **placeholder** screens.
+- Tap or long-press **preview overlay** (badge grows from the tile, closes with Back).
+- Brand colors in **light and dark** themes, splash screen.
+- **Offline fallback** from Room if network fails (teams, and leagues even when their cache has expired).
 - **Leagues TTL** cache: 24h.
 
 ## Tech
@@ -35,6 +38,7 @@ THE_SPORTS_DB_API_KEY=3
 - **ViewModel** unit tests: MockK + Coroutines Test.  
 - **Repository/DAO** local JVM tests: **Robolectric** + **Room (in-memory)** + **MockWebServer**.  
 - **API contract** tests validate paths/queries.
+- **Compose UI** instrumented tests (`app/src/androidTest`): `./gradlew connectedDebugAndroidTest` on a device/emulator.
 
 Run all:
 ```bash
@@ -65,5 +69,4 @@ Run all:
 
 ## Future Improvements
 - Add navigation to details screen.
-- Dark mode support.
-- UI tests.
+- More UI tests (a first set covers the start screen, the leagues error and the teams).

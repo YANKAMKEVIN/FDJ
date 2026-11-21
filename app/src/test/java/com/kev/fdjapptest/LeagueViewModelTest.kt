@@ -376,4 +376,30 @@ class LeagueViewModelTest {
         assert((s.teams as Result.Success<List<Team>>).value == TEAMS_L1) { "teams were ${s.teams}" }
         assert(s.refreshFailed)
     }
+
+    @Test
+    fun `text typed before the leagues arrive gets its suggestions once they are loaded`() = runTest {
+        coEvery { getAllLeagues() } coAnswers { delay(1_000); Result.Success(listOf(EPL, L1)) }
+        vm = newVm()
+
+        vm.onQueryChange("ligue")
+        advanceUntilIdle()
+
+        val s = vm.state.value
+        assert(s.suggestions == listOf(L1)) { "suggestions were ${s.suggestions}" }
+        assert(!s.showNoSuggestionMatch)
+    }
+
+    @Test
+    fun `a successful refresh recomputes the suggestions of the typed text`() = runTest {
+        val newLeague = League("789", "Ligue 2", "Soccer")
+        coEvery { getAllLeagues() } returns Result.Success(listOf(EPL))
+        coEvery { refreshLeagues() } returns Result.Success(listOf(EPL, newLeague))
+        vm = newVm(); advanceUntilIdle()
+        vm.onQueryChange("ligue")
+
+        vm.onRefreshLeagues(); advanceUntilIdle()
+
+        assert(vm.state.value.suggestions == listOf(newLeague)) { "suggestions were ${vm.state.value.suggestions}" }
+    }
 }

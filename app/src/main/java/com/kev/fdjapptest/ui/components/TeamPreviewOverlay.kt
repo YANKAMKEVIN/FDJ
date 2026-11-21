@@ -39,6 +39,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -70,7 +71,9 @@ fun TeamPreviewOverlay(
     fancyMotion: Boolean = true,
     shimmer: Boolean = true,
     /** When set, the badge grows from (and returns to) the tile that shares [teamBadgeKey]. */
-    sharedScope: SharedTransitionScope? = null
+    sharedScope: SharedTransitionScope? = null,
+    /** When set, a "See details" button opens the team detail screen. */
+    onOpenDetails: (() -> Unit)? = null
 ) {
     // Starts hidden so the entrance always plays, and stays composed while hiding so the exit
     // animation (fade + shrink) is played instead of the overlay vanishing.
@@ -229,6 +232,13 @@ fun TeamPreviewOverlay(
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    if (onOpenDetails != null) {
+                        Spacer(Modifier.height(4.dp))
+                        TextButton(onClick = onOpenDetails) {
+                            Text(stringResource(R.string.team_preview_details))
+                        }
+                    }
                 }
             }
         }

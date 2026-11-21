@@ -15,6 +15,9 @@ Clean, testable Android app to search football **leagues** and browse **teams** 
 - "Updated 2 min. ago" in the top bar after a refresh.
 - **Skeleton** loaders, **error** (with Retry) & **placeholder** screens.
 - Tap or long-press **preview overlay** (badge grows from the tile, closes with Back).
+- **Team detail screen** ("See details" in the preview): stadium, year of creation, description (French or English
+  depending on the device language) and web/social links opened in the browser; loading, error with Retry, and
+  missing fields hidden (`lookupteam.php`).
 - Brand colors in **light and dark** themes, splash screen.
 - **Offline fallback** from Room if network fails (teams, and leagues even when their cache has expired).
 - **Leagues TTL** cache: 24h.
@@ -38,6 +41,7 @@ THE_SPORTS_DB_API_KEY=3
 - **ViewModel** unit tests: MockK + Coroutines Test.  
 - **Repository/DAO** local JVM tests: **Robolectric** + **Room (in-memory)** + **MockWebServer**.  
 - **API contract** tests validate paths/queries.
+- **Team details** plain JVM tests (no Robolectric): mapping, repository, `lookupteam.php` path/parsing (MockWebServer).
 - **Compose UI** instrumented tests (`app/src/androidTest`): `./gradlew connectedDebugAndroidTest` on a device/emulator.
 
 Run all:
@@ -49,10 +53,14 @@ Run all:
 - **No Paging**: ≤ ~30 teams/league → simpler UI.  
 - Teams sorted **anti-lexicographically**; Room stores `ordinal`, UI shows **every other** (`ordinal % 2 == 0`).  
 - **Offline-first fallback** for teams; leagues refreshed on demand, cached for **24h**.
+- **Team details** are read from the network only (no Room cache): an error screen offers Retry.
+  The `lookupteam.php` field names (`strStadium`, `strLocation`, `intFormedYear`, `strDescriptionEN/FR`, `strWebsite`,
+  `strFacebook`, `strTwitter`, `strInstagram`, `strYoutube`) follow TheSportsDB public documentation and are
+  **not yet verified against the live API**.
 
 ## Modules
 - **app/**: Compose UI, ViewModels, app DI.
-- **domain/**: models, `LeagueRepository` interface, use cases, dispatcher provider, `Result/DomainError`.
+- **domain/**: models, `LeagueRepository` / `TeamRepository` interfaces, use cases, dispatcher provider, `Result/DomainError`.
 - **data/**: DTOs (Moshi), API, Room (entities/dao/db), repository impl, error mapping.
 
 ## Screenshots
@@ -68,5 +76,5 @@ Run all:
 <img src="https://github.com/user-attachments/assets/51f923be-e1f2-4af5-9bee-436b477d8477" alt="fdj_4" width="240" />
 
 ## Future Improvements
-- Add navigation to details screen.
-- More UI tests (a first set covers the start screen, the leagues error and the teams).
+- Team details: last/next matches (`eventslast.php` / `eventsnext.php`), offline cache.
+- More UI tests (a first set covers the start screen, the leagues error, the teams and the team details).

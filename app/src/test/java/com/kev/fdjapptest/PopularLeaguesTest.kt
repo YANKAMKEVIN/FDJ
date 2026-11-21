@@ -28,4 +28,17 @@ class PopularLeaguesTest {
     fun `offers nothing before the leagues are loaded`() {
         assertEquals(emptyList<League>(), LeagueUiState().popularLeagues)
     }
+
+    @Test
+    fun `matches the TheSportsDB id even if the league was renamed`() {
+        val renamed = League("4334", "Ligue 1 McDonald's", "Soccer")
+        assertEquals(listOf(renamed), popularLeaguesOf(listOf(other, renamed)))
+    }
+
+    @Test
+    fun `never offers the same league twice`() {
+        // Matches the EPL entry by id and the Ligue 1 entry by name.
+        val odd = League("4328", "French Ligue 1", "Soccer")
+        assertEquals(listOf(odd), popularLeaguesOf(listOf(odd)))
+    }
 }

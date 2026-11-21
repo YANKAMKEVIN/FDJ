@@ -17,12 +17,13 @@ import com.kev.domain.util.Result
 import com.kev.domain.util.Result.Failure
 import com.kev.domain.util.Result.Success
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Repository implementation for leagues/teams.
  *
  * Strategy:
- * - Leagues: cache with TTL (Room + CacheMeta).
+ * - Leagues: cache with TTL (Room + CacheMeta); an expired cache is still served when the network fails.
  * - Teams: on league selection, fetch remote once, compute deterministic order (anti-lexicographic),
  *   store into Room with precomputed `ordinal`, then serve via snapshot list.
  */
@@ -40,18 +41,24 @@ class LeagueRepositoryImpl @Inject constructor(
         val isStale = meta == null || (nowProvider() - meta.updatedAtMillis) > TTL_LEAGUES_MS
 
         if (isStale) {
-            val remote = api.getAllLeagues().leagues.orEmpty()
-            val entities = remote.map {
-                LeagueEntity(
-                    id = it.idLeague.orEmpty(),
-                    name = it.leagueName.orEmpty(),
-                    sport = it.sport
-                )
-            }
-            // Seed Room + update cache meta in a transaction
-            db.withTransaction {
-                leagueDao.insertAll(entities)
-                cacheMetaDao.upsert(CacheMetaEntity(LEAGUES_CACHE_KEY, nowProvider()))
+            try {
+                val remote = api.getAllLeagues().leagues.orEmpty()
+                val entities = remote.map {
+                    LeagueEntity(
+                        id = it.idLeague.orEmpty(),
+                        name = it.leagueName.orEmpty(),
+                        sport = it.sport
+                    )
+                }
+                // Seed Room + update cache meta in a transaction
+                db.withTransaction {
+                    leagueDao.insertAll(entities)
+                    cacheMetaDao.upsert(CacheMetaEntity(LEAGUES_CACHE_KEY, nowProvider()))
+                }
+            } catch (e: Exception) {
+                // Offline fallback: an expired cache is still better than no league to search.
+                // Only fail when nothing was ever cached.
+                if (e is CancellationException || leagueDao.count() == 0) throw e
             }
         }
 

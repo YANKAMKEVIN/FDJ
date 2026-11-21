@@ -59,6 +59,7 @@ class LeagueViewModel @Inject constructor(
                     updateState {
                         it.copy(
                             leagues = leagues,
+                            suggestions = refreshedSuggestions(it, leagues),
                             selectedLeague = restored,
                             leaguesError = null,
                             isTeamsLoading = restored != null
@@ -85,9 +86,7 @@ class LeagueViewModel @Inject constructor(
             it.copy(
                 query = text,
                 isSuggestionsOpen = true,
-                suggestions = it.leagues
-                    .filter { lg -> lg.name.contains(text, ignoreCase = true) }
-                    .take(10)
+                suggestions = suggestionsFor(text, it.leagues)
             )
         }
     }
@@ -137,6 +136,7 @@ class LeagueViewModel @Inject constructor(
                 is Result.Success -> updateState {
                     it.copy(
                         leagues = res.value,
+                        suggestions = refreshedSuggestions(it, res.value),
                         isRefreshing = false,
                         lastUpdatedMillis = System.currentTimeMillis(),
                         leaguesError = null
@@ -190,6 +190,17 @@ class LeagueViewModel @Inject constructor(
             )
         }
     }
+
+    /**
+     * Leagues matching [query] (case-insensitive, top 10). Also recomputed when the league list arrives or
+     * is refreshed, so text typed before the leagues were loaded gets its suggestions.
+     */
+    private fun suggestionsFor(query: String, leagues: List<League>): List<League> =
+        leagues.filter { lg -> lg.name.contains(query, ignoreCase = true) }.take(10)
+
+    /** Suggestions of the text already typed, against a newly received league list. */
+    private fun refreshedSuggestions(state: LeagueUiState, leagues: List<League>): List<League> =
+        if (state.query.isBlank()) state.suggestions else suggestionsFor(state.query, leagues)
 
     private fun updateState(reducer: (LeagueUiState) -> LeagueUiState) {
         val newState = reducer(_state.value)

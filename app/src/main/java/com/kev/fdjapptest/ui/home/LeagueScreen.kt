@@ -25,6 +25,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Surface
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -33,6 +34,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,10 +57,13 @@ import com.kev.fdjapptest.ui.components.TeamsHeader
 import com.kev.fdjapptest.ui.components.TeamsModeToggle
 import com.kev.fdjapptest.ui.components.shimmer.TeamsSkeletonGrid
 import com.kev.fdjapptest.ui.components.shimmer.TeamsSkeletonList
+import com.kev.fdjapptest.ui.detail.TeamDetailScreen
 
 @Composable
 fun LeagueScreen(viewModel: LeagueViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
+    // The team whose detail page is open; drawn above the league screen, which keeps its state.
+    var detailTeam by rememberSaveable(stateSaver = TeamSaver) { mutableStateOf<Team?>(null) }
 
     LeagueScreenContent(
         state = state,
@@ -69,9 +75,21 @@ fun LeagueScreen(viewModel: LeagueViewModel = hiltViewModel()) {
         onClearQuery = viewModel::clearQueryAndSelection,
         onDisplayModeChange = viewModel::onDisplayModeChange,
         onRetryLeagues = viewModel::retryLoadLeagues,
-        onRefreshErrorShown = viewModel::onRefreshErrorShown
+        onRefreshErrorShown = viewModel::onRefreshErrorShown,
+        onOpenTeamDetails = { detailTeam = it }
     )
+    detailTeam?.let { team ->
+        Surface(Modifier.fillMaxSize()) {
+            TeamDetailScreen(team = team, onBack = { detailTeam = null })
+        }
+    }
 }
+
+/** Saves the open team (id, name, badge) across configuration changes and process death. */
+private val TeamSaver = Saver<Team?, List<String?>>(
+    save = { team -> team?.let { listOf(it.id, it.name, it.badgeUrl) } ?: emptyList() },
+    restore = { values -> if (values.size < 3) null else Team(values[0].orEmpty(), values[1].orEmpty(), values[2]) }
+)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
@@ -85,7 +103,8 @@ fun LeagueScreenContent(
     onClearQuery: () -> Unit,
     onDisplayModeChange: (TeamsDisplayMode) -> Unit,
     onRetryLeagues: () -> Unit = {},
-    onRefreshErrorShown: () -> Unit = {}
+    onRefreshErrorShown: () -> Unit = {},
+    onOpenTeamDetails: (Team) -> Unit = {}
 ) {
     val pullState = rememberPullToRefreshState()
     val listState = rememberLazyListState()
@@ -235,7 +254,11 @@ fun LeagueScreenContent(
                         team = team,
                         visible = isPreviewVisible,
                         onDismiss = { isPreviewVisible = false },
-                        sharedScope = sharedScope
+                        sharedScope = sharedScope,
+                        onOpenDetails = {
+                            isPreviewVisible = false
+                            onOpenTeamDetails(team)
+                        }
                     )
                 }
             }

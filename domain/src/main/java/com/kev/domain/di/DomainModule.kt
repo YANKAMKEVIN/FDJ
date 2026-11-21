@@ -2,7 +2,9 @@ package com.kev.domain.di
 
 
 import com.kev.domain.repository.LeagueRepository
+import com.kev.domain.repository.TeamRepository
 import com.kev.domain.usecase.GetAllLeaguesUseCase
+import com.kev.domain.usecase.GetTeamDetailsUseCase
 import com.kev.domain.usecase.GetTeamsForLeagueUseCase
 import com.kev.domain.usecase.RefreshLeaguesUseCase
 import com.kev.domain.util.DefaultDispatcherProvider
@@ -40,6 +42,13 @@ object DomainModule {
         repo: LeagueRepository,
         dispatchers: DispatcherProvider
     ): RefreshLeaguesUseCase = RefreshLeaguesUseCase(repo, dispatchers)
+
+    @Provides
+    @Singleton
+    fun provideGetTeamDetailsUseCase(
+        repo: TeamRepository,
+        dispatchers: DispatcherProvider
+    ): GetTeamDetailsUseCase = GetTeamDetailsUseCase(repo, dispatchers)
 
     @Provides
     @Singleton

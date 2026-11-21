@@ -6,7 +6,9 @@ import com.kev.data.datasource.local.dao.LeagueDao
 import com.kev.data.datasource.local.dao.TeamDao
 import com.kev.data.datasource.remote.api.TheSportsDbApi
 import com.kev.data.repository.LeagueRepositoryImpl
+import com.kev.data.repository.TeamRepositoryImpl
 import com.kev.domain.repository.LeagueRepository
+import com.kev.domain.repository.TeamRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,4 +34,8 @@ object RepositoryModule {
         cacheMetaDao = cacheMetaDao,
         db = db,
     )
+
+    @Provides
+    @Singleton
+    fun provideTeamRepository(api: TheSportsDbApi): TeamRepository = TeamRepositoryImpl(api)
 }
